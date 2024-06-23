@@ -3,6 +3,7 @@ package com.mumudevx.soundboard
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.provider.Settings.Global.getString
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.mumudevx.soundboard.ui.theme.SoundboardTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -36,13 +38,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val admobInterstitialAdId = getString(R.string.admob_interstitial_ad_id)
+
         MobileAds.initialize(this) {}
 
         val adRequest = AdRequest.Builder().build()
 
         InterstitialAd.load(
             this,
-            "ca-app-pub-3940256099942544/1033173712",
+            admobInterstitialAdId,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
@@ -59,7 +63,9 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            SoundboardApp()
+            SoundboardTheme {
+                SoundboardApp()
+            }
         }
     }
 }
@@ -98,7 +104,7 @@ fun SoundboardApp() {
     val adView = remember {
         val view = AdView(context)
         view.setAdSize(AdSize.BANNER)
-        view.adUnitId = "ca-app-pub-3940256099942544/9214589741"
+        view.adUnitId = context.getString(R.string.admob_banner_ad_id)
         val adRequest = AdRequest.Builder().build()
         view.loadAd(adRequest)
         view
@@ -230,7 +236,7 @@ fun playSound(context: Context, soundId: Int) {
                     val adRequest = AdRequest.Builder().build()
                     InterstitialAd.load(
                         context,
-                        "ca-app-pub-3940256099942544/1033173712",
+                        context.getString(R.string.admob_interstitial_ad_id),
                         adRequest,
                         object : InterstitialAdLoadCallback() {
                             override fun onAdLoaded(interstitialAd: InterstitialAd) {
@@ -248,5 +254,3 @@ fun playSound(context: Context, soundId: Int) {
         soundCounter = 0
     }
 }
-
-

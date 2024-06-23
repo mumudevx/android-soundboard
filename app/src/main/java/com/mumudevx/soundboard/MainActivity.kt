@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -38,7 +40,6 @@ class MainActivity : ComponentActivity() {
 
         val adRequest = AdRequest.Builder().build()
 
-        println("Reklam yükleniyor...")
         InterstitialAd.load(
             this,
             "ca-app-pub-3940256099942544/1033173712",
@@ -46,16 +47,16 @@ class MainActivity : ComponentActivity() {
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     mInterstitialAd = interstitialAd
-                    println("Reklam yüklendi.")
+                    println("mInterstitialAd: Ads loaded successfully")
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     mInterstitialAd = null
-                    println("Reklam mesaj:" + loadAdError.message)
+                    println("mInterstitialAd: Ads failed to load")
+                    println("mInterstitialAd: ${loadAdError.message}")
                 }
             }
         )
-
 
         setContent {
             SoundboardApp()
@@ -66,7 +67,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SoundboardApp() {
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current;
+    val context = LocalContext.current
 
     val tabs = listOf("Tab One", "Tab Two", "Tab Three")
 
@@ -109,7 +110,7 @@ fun SoundboardApp() {
                 Column {
                     OutlinedTextField(
                         value = searchText,
-                        onValueChange = {
+                        onValueChange = { it ->
                             searchText = it
                             filteredSounds = filterSounds(allSounds, searchText)
 
@@ -169,13 +170,14 @@ fun SoundboardApp() {
 
 @Composable
 fun TabContent(sounds: List<Sound>) {
-    val context = LocalContext.current;
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars)
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
     ) {
@@ -212,15 +214,12 @@ fun filterSounds(sounds: List<Sound>, searchText: String): List<Sound> {
     return sounds.filter { it.title.contains(searchText, ignoreCase = true) }
 }
 
+var mediaPlayer = MediaPlayer()
 var soundCounter = 0
 fun playSound(context: Context, soundId: Int) {
-    val mediaPlayer = MediaPlayer.create(context, soundId)
+    mediaPlayer.stop()
 
-    if (mediaPlayer.isPlaying) {
-        mediaPlayer.stop()
-        mediaPlayer.release()
-    }
-
+    mediaPlayer = MediaPlayer.create(context, soundId)
     mediaPlayer.start()
 
     soundCounter++

@@ -3,13 +3,19 @@ package com.mumudevx.soundboard
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.provider.Settings.Global.getString
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -18,9 +24,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -110,28 +121,53 @@ fun SoundboardApp() {
         view
     }
 
+    // Navigation
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "main") {
+        composable("main") { MainActivity() }
+        composable("favorites") { FavoriteSoundsScreen(allSounds) }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
                 Column {
-                    OutlinedTextField(
-                        value = searchText,
-                        onValueChange = { it ->
-                            searchText = it
-                            filteredSounds = filterSounds(allSounds, searchText)
-
-                            chunkedSounds = if (filteredSounds.isNotEmpty()) {
-                                filteredSounds.chunked((filteredSounds.size / tabs.size).takeIf { it > 0 }
-                                    ?: 1)
-                            } else {
-                                allSounds.chunked(allSounds.size / tabs.size)
-                            }
-                        },
-                        label = { Text("Search Sounds") },
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
-                    )
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = searchText,
+                            onValueChange = { it ->
+                                searchText = it
+                                filteredSounds = filterSounds(allSounds, searchText)
+
+                                chunkedSounds = if (filteredSounds.isNotEmpty()) {
+                                    filteredSounds.chunked((filteredSounds.size / tabs.size).takeIf { it > 0 }
+                                        ?: 1)
+                                } else {
+                                    allSounds.chunked(allSounds.size / tabs.size)
+                                }
+                            },
+                            label = { Text("Search Sounds") },
+                            modifier = Modifier
+                                .weight(1f)
+                        )
+                        IconButton(onClick = {
+                            println("Favorites Clicked!")
+                            navController.navigate("favorites")
+                        }) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Favorite Sounds",
+                                tint = Color.Red
+                            )
+                        }
+                    }
+
                     TabRow(selectedTabIndex = selectedTabIndex) {
                         tabs.forEachIndexed { index, title ->
                             Tab(
@@ -174,9 +210,12 @@ fun SoundboardApp() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TabContent(sounds: List<Sound>) {
     val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedSound by remember { mutableStateOf<Sound?>(null) }
 
     Column(
         modifier = Modifier
@@ -194,14 +233,25 @@ fun TabContent(sounds: List<Sound>) {
             ) {
                 soundsInRow.forEachIndexed { index, sound ->
                     Button(
-                        onClick = {
-                            playSound(
-                                context = context,
-                                soundId = sound.resourceId
-                            )
-                        }, modifier = Modifier.weight(1f)
+                        onClick = {},
+                        modifier = Modifier
+                            .weight(1f)
                     ) {
-                        Text(sound.title)
+                        Text(
+                            text = sound.title,
+                            modifier = Modifier.combinedClickable(
+                                onClick = {
+                                    playSound(
+                                        context = context,
+                                        soundId = sound.resourceId
+                                    )
+                                },
+                                onLongClick = {
+                                    selectedSound = sound
+                                    showDialog = true
+                                }
+                            )
+                        )
                     }
                     if (index < sounds.size - 1) {
                         Spacer(modifier = Modifier.width(4.dp))

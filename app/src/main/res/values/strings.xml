@@ -7,6 +7,6 @@
     <!-- Sample Adaptive Banner Ad ID: ca-app-pub-3940256099942544~3347511713 -->
     <string name="admob_banner_ad_id">	ca-app-pub-3940256099942544/9214589741</string>
 
-    <!-- Sample Interstitial Ad ID: ca-app-pub-3940256099942544/1033173712 -->
-    <string name="admob_interstitial_ad_id">ca-app-pub-3940256099942544/1033173712</string>
+    <!-- Sample Interstitial Ad ID: ca-app-pub-3940256099942544/8691691433 -->
+    <string name="admob_interstitial_ad_id">ca-app-pub-3940256099942544/8691691433</string>
 </resources>

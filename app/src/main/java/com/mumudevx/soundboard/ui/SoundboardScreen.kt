@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +36,6 @@ import kotlinx.coroutines.launch
 
 class SoundboardScreen : ComponentActivity()
 
-val mainActivity = MainActivity()
 var isPlaying: Boolean by mutableStateOf(false)
 
 @Composable
@@ -184,7 +184,12 @@ fun TabContent(sounds: List<Sound>) {
             ) {
                 soundsInRow.forEachIndexed { index, sound ->
                     Button(
-                        onClick = {},
+                        onClick = {
+                            playSound(
+                                context = context,
+                                soundId = sound.resourceId
+                            )
+                        },
                         modifier = Modifier
                             .weight(1f)
                     ) {
@@ -214,6 +219,45 @@ fun TabContent(sounds: List<Sound>) {
                 }
             }
         }
+
+        ShowDialogIfNeeded(
+            showDialog = showDialog,
+            onDismissRequest = { showDialog = false },
+            onConfirm = {
+                // Handle confirm action
+                showDialog = false
+            },
+            onCancel = {
+                // Handle cancel action
+                showDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun ShowDialogIfNeeded(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { onDismissRequest() },
+            title = { Text(text = "Confirmation") },
+            text = { Text("Are you sure you want to perform this action?") },
+            confirmButton = {
+                Button(onClick = { onConfirm() }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { onCancel() }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -235,7 +279,9 @@ fun playSound(context: Context, soundId: Int) {
     println("Sound Counter: $soundCounter")
 
     if (soundCounter >= 10) {
-        mainActivity.showInterstitialAd()
+        if (context is MainActivity) {
+            context.showInterstitialAd()
+        }
         soundCounter = 0
     }
 }

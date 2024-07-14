@@ -55,8 +55,6 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .safeContentPadding()
                 ) {
-                    //SoundboardScreenContent(navController)
-
                     val navController = rememberNavController();
                     NavHost(navController = navController, startDestination = "soundboard") {
                         composable("soundboard") {

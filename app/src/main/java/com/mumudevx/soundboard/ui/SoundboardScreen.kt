@@ -98,7 +98,7 @@ fun SoundboardScreenContent(navController: NavController) {
                         )
                         IconButton(onClick = {
                             println("Favorites Clicked!")
-                            navController.navigate("favorites")
+                            navController.navigate("favoriteSounds")
                         }) {
                             Icon(
                                 Icons.Filled.Favorite,

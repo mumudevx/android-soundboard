@@ -8,10 +8,13 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -102,18 +105,6 @@ fun SoundboardApp() {
                             modifier = Modifier
                                 .weight(1f)
                         )
-                        if (isPlaying) {
-                            IconButton(onClick = {
-                                mediaPlayer.stop()
-                                isPlaying = false
-                            }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.crop_square),
-                                    contentDescription = "Stop",
-                                    tint = Color.Red
-                                )
-                            }
-                        }
                         IconButton(onClick = {
                             println("Favorites Clicked!")
                             navController.navigate("favorites")
@@ -140,7 +131,27 @@ fun SoundboardApp() {
                         }
                     }
                 }
-            }
+            },
+            floatingActionButton = {
+                if (isPlaying) {
+                    FloatingActionButton(
+                        onClick = {
+                            mediaPlayer.stop()
+                            isPlaying = false
+                        },
+                        backgroundColor = Color.Red,
+                        modifier = Modifier
+                            .padding(bottom = 90.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.crop_square),
+                            contentDescription = "Stop",
+                            tint = Color.White
+                        )
+                    }
+                }
+            },
+            floatingActionButtonPosition = FabPosition.End,
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
                 when (selectedTabIndex) {
@@ -173,6 +184,7 @@ fun TabContent(sounds: List<Sound>) {
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars)
             .padding(16.dp)
+            .padding(bottom = 75.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
@@ -223,38 +235,85 @@ fun TabContent(sounds: List<Sound>) {
         ShowDialogIfNeeded(
             showDialog = showDialog,
             onDismissRequest = { showDialog = false },
-            onConfirm = {
-                // Handle confirm action
-                showDialog = false
-            },
             onCancel = {
                 // Handle cancel action
                 showDialog = false
-            }
+            },
+            selectedSound?.title ?: ""
         )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShowDialogIfNeeded(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
-    onConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    soundTitle: String
 ) {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { onDismissRequest() },
-            title = { Text(text = "Confirmation") },
-            text = { Text("Are you sure you want to perform this action?") },
-            confirmButton = {
-                Button(onClick = { onConfirm() }) {
-                    Text("Confirm")
+            title = { Text(text = soundTitle) },
+            text = {
+                //Text("Are you sure you want to perform this action?")
+                // Create clickable text
+                Column {
+                    Text(
+                        text = "Add to favorites",
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {
+                                    // Handle click action
+                                    println("Add to favorites clicked!")
+                                }
+                            )
+                            .padding(8.dp),
+                        style = MaterialTheme.typography.body1
+                    )
+                    Text(
+                        text = "Set as ringtone",
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {
+                                    // Handle click action
+                                    println("Set as ringtone clicked!")
+                                }
+                            )
+                            .padding(8.dp),
+                        style = MaterialTheme.typography.body1
+                    )
+                    Text(
+                        text = "Set as alarm",
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {
+                                    // Handle click action
+                                    println("Set as alarm clicked!")
+                                }
+                            )
+                            .padding(8.dp),
+                        style = MaterialTheme.typography.body1
+                    )
+                    Text(
+                        text = "Set as notification",
+                        modifier = Modifier
+                            .combinedClickable(
+                                onClick = {
+                                    // Handle click action
+                                    println("Set as notification clicked!")
+                                }
+                            )
+                            .padding(8.dp),
+                        style = MaterialTheme.typography.body1
+                    )
                 }
             },
+            confirmButton = {},
             dismissButton = {
                 Button(onClick = { onCancel() }) {
-                    Text("Cancel")
+                    Text("Close")
                 }
             }
         )

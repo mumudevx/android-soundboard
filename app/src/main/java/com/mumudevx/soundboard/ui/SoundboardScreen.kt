@@ -8,8 +8,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
@@ -29,9 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavController
 import com.mumudevx.soundboard.MainActivity
 import com.mumudevx.soundboard.R
 import com.mumudevx.soundboard.model.Sound
@@ -42,7 +40,7 @@ class SoundboardScreen : ComponentActivity()
 var isPlaying: Boolean by mutableStateOf(false)
 
 @Composable
-fun SoundboardApp() {
+fun SoundboardScreenContent(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
 
     val tabs = listOf("Tab One", "Tab Two", "Tab Three")
@@ -69,13 +67,6 @@ fun SoundboardApp() {
     var searchText by remember { mutableStateOf("") }
     var filteredSounds by remember { mutableStateOf(allSounds) }
     var chunkedSounds by remember { mutableStateOf(allSounds.chunked(allSounds.size / tabs.size)) }
-
-    // Navigation
-    val navController = rememberNavController()
-    NavHost(navController, startDestination = "main") {
-        composable("main") { SoundboardScreen() }
-        composable("favorites") { FavoriteSoundsScreen() }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -139,7 +130,7 @@ fun SoundboardApp() {
                             mediaPlayer.stop()
                             isPlaying = false
                         },
-                        backgroundColor = Color.Red,
+                        containerColor = Color.Red,
                         modifier = Modifier
                             .padding(bottom = 90.dp)
                     ) {
@@ -257,8 +248,6 @@ fun ShowDialogIfNeeded(
             onDismissRequest = { onDismissRequest() },
             title = { Text(text = soundTitle) },
             text = {
-                //Text("Are you sure you want to perform this action?")
-                // Create clickable text
                 Column {
                     Text(
                         text = "Add to favorites",
@@ -270,7 +259,7 @@ fun ShowDialogIfNeeded(
                                 }
                             )
                             .padding(8.dp),
-                        style = MaterialTheme.typography.body1
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = "Set as ringtone",
@@ -282,7 +271,7 @@ fun ShowDialogIfNeeded(
                                 }
                             )
                             .padding(8.dp),
-                        style = MaterialTheme.typography.body1
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = "Set as alarm",
@@ -294,7 +283,7 @@ fun ShowDialogIfNeeded(
                                 }
                             )
                             .padding(8.dp),
-                        style = MaterialTheme.typography.body1
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = "Set as notification",
@@ -306,7 +295,7 @@ fun ShowDialogIfNeeded(
                                 }
                             )
                             .padding(8.dp),
-                        style = MaterialTheme.typography.body1
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             },

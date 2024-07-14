@@ -1,30 +1,41 @@
 package com.mumudevx.soundboard.ui
 
-import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.mumudevx.soundboard.model.Sound
-import com.mumudevx.soundboard.ui.theme.SoundboardTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
-
-class FavoriteSoundsScreen : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            SoundboardTheme {
-                FavoriteSoundsScreenContent(null)
-            }
-        }
-    }
-}
+class FavoriteSoundsScreen : ComponentActivity()
 
 @Composable
-fun FavoriteSoundsScreenContent(favoriteSounds: List<Sound>?) {
-    if (favoriteSounds.isNullOrEmpty()) {
-        Text("There is no favorite sounds")
-    } else {
-        Text("${favoriteSounds.size} favorite sounds")
+fun FavoriteSoundsScreenContent() {
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {},
+        ) { innerPadding ->
+            Column(modifier = Modifier.padding(innerPadding)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    Text("Favorite Sounds")
+                }
+            }
+        }
     }
 }

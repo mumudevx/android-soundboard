@@ -12,6 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -21,7 +24,9 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.MobileAds
-import com.mumudevx.soundboard.ui.SoundboardApp
+import com.mumudevx.soundboard.ui.FavoriteSoundsScreen
+import com.mumudevx.soundboard.ui.FavoriteSoundsScreenContent
+import com.mumudevx.soundboard.ui.SoundboardScreenContent
 import com.mumudevx.soundboard.ui.theme.SoundboardTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,7 +55,17 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .safeContentPadding()
                 ) {
-                    SoundboardApp()
+                    //SoundboardScreenContent(navController)
+
+                    val navController = rememberNavController();
+                    NavHost(navController = navController, startDestination = "soundboard") {
+                        composable("soundboard") {
+                            SoundboardScreenContent(navController)
+                        }
+                        composable("favoriteSounds") {
+                            FavoriteSoundsScreenContent()
+                        }
+                    }
 
                     AndroidView(
                         factory = { adView },

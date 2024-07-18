@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
@@ -24,7 +25,6 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.MobileAds
-import com.mumudevx.soundboard.ui.FavoriteSoundsScreen
 import com.mumudevx.soundboard.ui.FavoriteSoundsScreenContent
 import com.mumudevx.soundboard.ui.SoundboardScreenContent
 import com.mumudevx.soundboard.ui.theme.SoundboardTheme
@@ -58,10 +58,10 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController();
                     NavHost(navController = navController, startDestination = "soundboard") {
                         composable("soundboard") {
-                            SoundboardScreenContent(navController)
+                            SoundboardScreenContent()
                         }
                         composable("favoriteSounds") {
-                            FavoriteSoundsScreenContent()
+                            FavoriteSoundsScreenContent(navController)
                         }
                     }
 

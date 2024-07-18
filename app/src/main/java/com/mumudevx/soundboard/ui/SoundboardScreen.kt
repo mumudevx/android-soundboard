@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,39 +30,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.mumudevx.soundboard.MainActivity
 import com.mumudevx.soundboard.R
 import com.mumudevx.soundboard.model.Sound
+import com.mumudevx.soundboard.viewmodel.SoundsViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Badge
+import androidx.compose.runtime.livedata.observeAsState
 
 class SoundboardScreen : ComponentActivity()
 
 var isPlaying: Boolean by mutableStateOf(false)
 
 @Composable
-fun SoundboardScreenContent(navController: NavController) {
+fun SoundboardScreenContent() {
     val coroutineScope = rememberCoroutineScope()
+
+    val viewModel = SoundsViewModel(LocalContext.current)
 
     val tabs = listOf("Tab One", "Tab Two", "Tab Three")
 
-    val allSounds = listOf(
-        Sound("Sound One", R.raw.sound_1),
-        Sound("Sound Two", R.raw.sound_2),
-        Sound("Sound Three", R.raw.sound_3),
-        Sound("Sound Four", R.raw.sound_4),
-        Sound("Sound Five", R.raw.sound_5),
-        Sound("Sound Six", R.raw.sound_6),
-        Sound("Sound Seven", R.raw.sound_7),
-        Sound("Sound Eight", R.raw.sound_8),
-        Sound("Sound Nine", R.raw.sound_9),
-        Sound("Sound Ten", R.raw.sound_10),
-        Sound("Sound Eleven", R.raw.sound_11),
-        Sound("Sound Twelve", R.raw.sound_12),
-        Sound("Sound Thirteen", R.raw.sound_13),
-        Sound("Sound Fourteen", R.raw.sound_14),
-        Sound("Sound Fifteen", R.raw.sound_15)
-    )
+    val allSounds = SoundsViewModel.allSounds
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var searchText by remember { mutableStateOf("") }
@@ -96,16 +86,7 @@ fun SoundboardScreenContent(navController: NavController) {
                             modifier = Modifier
                                 .weight(1f)
                         )
-                        IconButton(onClick = {
-                            println("Favorites Clicked!")
-                            navController.navigate("favoriteSounds")
-                        }) {
-                            Icon(
-                                Icons.Filled.Favorite,
-                                contentDescription = "Favorite Sounds",
-                                tint = Color.Red
-                            )
-                        }
+                        ShowFavoriteBadge(viewModel)
                     }
 
                     TabRow(selectedTabIndex = selectedTabIndex) {
@@ -227,10 +208,11 @@ fun TabContent(sounds: List<Sound>) {
             showDialog = showDialog,
             onDismissRequest = { showDialog = false },
             onCancel = {
-                // Handle cancel action
                 showDialog = false
             },
-            selectedSound?.title ?: ""
+            selectedSound?.title ?: "",
+            viewModel = SoundsViewModel(context),
+            selectedSound
         )
     }
 }
@@ -241,7 +223,9 @@ fun ShowDialogIfNeeded(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
     onCancel: () -> Unit,
-    soundTitle: String
+    soundTitle: String,
+    viewModel: SoundsViewModel,
+    selectedSound: Sound?
 ) {
     if (showDialog) {
         AlertDialog(
@@ -252,12 +236,12 @@ fun ShowDialogIfNeeded(
                     Text(
                         text = "Add to favorites",
                         modifier = Modifier
-                            .combinedClickable(
-                                onClick = {
-                                    // Handle click action
-                                    println("Add to favorites clicked!")
+                            .clickable {
+                                selectedSound?.let {
+                                    viewModel.addFavorite(it)
+                                    onDismissRequest()
                                 }
-                            )
+                            }
                             .padding(8.dp),
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -268,6 +252,7 @@ fun ShowDialogIfNeeded(
                                 onClick = {
                                     // Handle click action
                                     println("Set as ringtone clicked!")
+                                    onDismissRequest()
                                 }
                             )
                             .padding(8.dp),
@@ -280,6 +265,7 @@ fun ShowDialogIfNeeded(
                                 onClick = {
                                     // Handle click action
                                     println("Set as alarm clicked!")
+                                    onDismissRequest()
                                 }
                             )
                             .padding(8.dp),
@@ -292,6 +278,7 @@ fun ShowDialogIfNeeded(
                                 onClick = {
                                     // Handle click action
                                     println("Set as notification clicked!")
+                                    onDismissRequest()
                                 }
                             )
                             .padding(8.dp),
@@ -306,6 +293,27 @@ fun ShowDialogIfNeeded(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun ShowFavoriteBadge(viewModel: SoundsViewModel) {
+    val favoriteSoundsCount = viewModel.favoriteSoundsCount.observeAsState(initial = 0).value
+    val favoriteSounds = viewModel.favoriteSounds.observeAsState(initial = listOf())
+
+    println("init favoriteSoundsCount: $favoriteSoundsCount")
+    println("init favoriteSounds: $favoriteSounds")
+
+    BadgedBox(
+        badge = {
+            Badge {
+                Text(text = favoriteSoundsCount.toString())
+            }
+        }
+    ) {
+        IconButton(onClick = {}) {
+            Icon(Icons.Filled.Favorite, contentDescription = "Favorite Sounds")
+        }
     }
 }
 

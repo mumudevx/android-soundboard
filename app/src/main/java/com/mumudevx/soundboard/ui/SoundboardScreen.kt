@@ -38,13 +38,14 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Badge
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.navigation.NavController
 
 class SoundboardScreen : ComponentActivity()
 
 var isPlaying: Boolean by mutableStateOf(false)
 
 @Composable
-fun SoundboardScreenContent() {
+fun SoundboardScreenContent(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
 
     val viewModel = SoundsViewModel(LocalContext.current)
@@ -86,7 +87,7 @@ fun SoundboardScreenContent() {
                             modifier = Modifier
                                 .weight(1f)
                         )
-                        ShowFavoriteBadge(viewModel)
+                        ShowFavoriteBadge(viewModel, navController)
                     }
 
                     TabRow(selectedTabIndex = selectedTabIndex) {
@@ -297,7 +298,7 @@ fun ShowDialogIfNeeded(
 }
 
 @Composable
-fun ShowFavoriteBadge(viewModel: SoundsViewModel) {
+fun ShowFavoriteBadge(viewModel: SoundsViewModel, navController: NavController) {
     val favoriteSoundsCount = viewModel.favoriteSoundsCount.observeAsState(initial = 0).value
     val favoriteSounds = viewModel.favoriteSounds.observeAsState(initial = listOf())
 
@@ -311,7 +312,9 @@ fun ShowFavoriteBadge(viewModel: SoundsViewModel) {
             }
         }
     ) {
-        IconButton(onClick = {}) {
+        IconButton(onClick = {
+            navController.navigate("favoriteSounds")
+        }) {
             Icon(Icons.Filled.Favorite, contentDescription = "Favorite Sounds")
         }
     }

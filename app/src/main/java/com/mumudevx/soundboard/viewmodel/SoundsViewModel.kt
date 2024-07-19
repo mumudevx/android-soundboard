@@ -45,6 +45,7 @@ class SoundsViewModel(context: Context) : ViewModel() {
             _favoriteSounds.value = _favoriteSounds.value?.plus(sound)
 
             println("Favorite sounds count: ${favoriteSoundsCount.value}")
+            println("Favorite sounds: ${favoriteSounds.value}")
         }
     }
 

@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController();
                     NavHost(navController = navController, startDestination = "soundboard") {
                         composable("soundboard") {
-                            SoundboardScreenContent()
+                            SoundboardScreenContent(navController)
                         }
                         composable("favoriteSounds") {
                             FavoriteSoundsScreenContent(navController)

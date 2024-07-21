@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -57,10 +58,19 @@ fun FavoriteSoundsScreenContent(navController: NavController) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Favorite Sounds") },
+                    title = {
+                        Text(
+                            text = "Favorite Sounds",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigate("soundboard") }) {
-                            Icon(Icons.Filled.Home, contentDescription = "Go to Soundboard.kt")
+                            Icon(
+                                Icons.Filled.Home,
+                                contentDescription = "Go to Soundboard.kt",
+                                Modifier.size(34.dp)
+                            )
                         }
                     }
                 )
@@ -91,45 +101,50 @@ fun FavoriteContent(favoriteSounds: List<Sound>) {
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
     ) {
-        favoriteSounds.chunked(2).forEach { soundsInRow ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                soundsInRow.forEachIndexed { index, sound ->
-                    Button(
-                        onClick = {
-                            playSound(
-                                context = context,
-                                soundId = sound.resourceId
+
+        if (favoriteSounds.isEmpty()) {
+            Text("There is no favorite sound yet", style = MaterialTheme.typography.bodyLarge)
+        } else {
+            favoriteSounds.chunked(2).forEach { soundsInRow ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    soundsInRow.forEachIndexed { index, sound ->
+                        Button(
+                            onClick = {
+                                playSound(
+                                    context = context,
+                                    soundId = sound.resourceId
+                                )
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = sound.title,
+                                modifier = Modifier.combinedClickable(
+                                    onClick = {
+                                        playSound(
+                                            context = context,
+                                            soundId = sound.resourceId
+                                        )
+                                    },
+                                    onLongClick = {
+                                        selectedSound = sound
+                                        showDialog = true
+                                    }
+                                )
                             )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = sound.title,
-                            modifier = Modifier.combinedClickable(
-                                onClick = {
-                                    playSound(
-                                        context = context,
-                                        soundId = sound.resourceId
-                                    )
-                                },
-                                onLongClick = {
-                                    selectedSound = sound
-                                    showDialog = true
-                                }
-                            )
-                        )
+                        }
+                        if (index < favoriteSounds.size - 1) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+                        if (soundsInRow.size == 1) {
+                            Box(modifier = Modifier.weight(1f)) {}
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    if (index < favoriteSounds.size - 1) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-                    if (soundsInRow.size == 1) {
-                        Box(modifier = Modifier.weight(1f)) {}
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }

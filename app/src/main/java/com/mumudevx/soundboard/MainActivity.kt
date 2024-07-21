@@ -79,8 +79,6 @@ class MainActivity : ComponentActivity() {
     private fun loadInterstitialAd() {
         val adRequest = AdRequest.Builder().build()
 
-        println("Loading Interstitial Ad...")
-
         InterstitialAd.load(
             this,
             getString(R.string.admob_interstitial_ad_id),
@@ -88,7 +86,7 @@ class MainActivity : ComponentActivity() {
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     mInterstitialAd = interstitialAd
-                    println("Interstitial Ad Loaded")
+
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {

@@ -2,6 +2,7 @@ package com.mumudevx.soundboard.ui
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.media.RingtoneManager
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -38,7 +39,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Badge
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mumudevx.soundboard.util.MediaUtils.setSoundAs
 
 class SoundboardScreen : ComponentActivity()
 
@@ -74,6 +77,14 @@ fun SoundboardScreenContent(navController: NavController) {
                             value = searchText,
                             onValueChange = { it ->
                                 searchText = it
+
+                                if (searchText.isNotEmpty()) {
+                                    selectedTabIndex = 99
+                                }
+                                else{
+                                    selectedTabIndex = 0
+                                }
+
                                 filteredSounds = filterSounds(allSounds, searchText)
 
                                 chunkedSounds = if (filteredSounds.isNotEmpty()) {
@@ -83,9 +94,8 @@ fun SoundboardScreenContent(navController: NavController) {
                                     allSounds.chunked(allSounds.size / tabs.size)
                                 }
                             },
-                            label = { Text("Search Sounds") },
-                            modifier = Modifier
-                                .weight(1f)
+                            label = { Text(text = "Search Sounds") },
+                            modifier = Modifier.weight(1f)
                         )
                         ShowFavoriteBadge(viewModel, navController)
                     }
@@ -139,6 +149,12 @@ fun SoundboardScreenContent(navController: NavController) {
                     2 -> TabContent(
                         sounds = if (chunkedSounds.size > 2) chunkedSounds[2] else emptyList()
                     )
+
+                    else -> {
+                        TabContent(
+                            sounds = filteredSounds
+                        )
+                    }
                 }
             }
         }
@@ -228,6 +244,8 @@ fun ShowDialogIfNeeded(
     viewModel: SoundsViewModel,
     selectedSound: Sound?
 ) {
+    val context = LocalContext.current
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { onDismissRequest() },
@@ -251,8 +269,12 @@ fun ShowDialogIfNeeded(
                         modifier = Modifier
                             .combinedClickable(
                                 onClick = {
-                                    // Handle click action
-                                    println("Set as ringtone clicked!")
+                                    setSoundAs(
+                                        context = context,
+                                        soundId = selectedSound!!.resourceId,
+                                        soundTitle = selectedSound.title,
+                                        soundType = RingtoneManager.TYPE_RINGTONE
+                                    )
                                     onDismissRequest()
                                 }
                             )
@@ -264,8 +286,12 @@ fun ShowDialogIfNeeded(
                         modifier = Modifier
                             .combinedClickable(
                                 onClick = {
-                                    // Handle click action
-                                    println("Set as alarm clicked!")
+                                    setSoundAs(
+                                        context = context,
+                                        soundId = selectedSound!!.resourceId,
+                                        soundTitle = selectedSound.title,
+                                        soundType = RingtoneManager.TYPE_ALARM
+                                    )
                                     onDismissRequest()
                                 }
                             )
@@ -277,8 +303,12 @@ fun ShowDialogIfNeeded(
                         modifier = Modifier
                             .combinedClickable(
                                 onClick = {
-                                    // Handle click action
-                                    println("Set as notification clicked!")
+                                    setSoundAs(
+                                        context = context,
+                                        soundId = selectedSound!!.resourceId,
+                                        soundTitle = selectedSound.title,
+                                        soundType = RingtoneManager.TYPE_NOTIFICATION
+                                    )
                                     onDismissRequest()
                                 }
                             )
@@ -302,20 +332,30 @@ fun ShowFavoriteBadge(viewModel: SoundsViewModel, navController: NavController) 
     val favoriteSoundsCount = viewModel.favoriteSoundsCount.observeAsState(initial = 0).value
     val favoriteSounds = viewModel.favoriteSounds.observeAsState(initial = listOf())
 
-    println("init favoriteSoundsCount: $favoriteSoundsCount")
-    println("init favoriteSounds: $favoriteSounds")
-
     BadgedBox(
         badge = {
-            Badge {
-                Text(text = favoriteSoundsCount.toString())
+            Badge(
+                modifier = Modifier.offset(x = (-12).dp, y = (8).dp),
+                containerColor = Color.Black,
+                contentColor = Color.White,
+            ) {
+                Text(
+                    text = favoriteSoundsCount.toString(),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 13.sp),
+                    modifier = Modifier.padding(2.dp)
+                )
             }
         }
     ) {
         IconButton(onClick = {
             navController.navigate("favoriteSounds")
         }) {
-            Icon(Icons.Filled.Favorite, contentDescription = "Favorite Sounds")
+            Icon(
+                Icons.Filled.Favorite,
+                contentDescription = "Favorite Sounds",
+                Modifier.size(34.dp),
+                tint = Color.Red
+            )
         }
     }
 }
@@ -335,7 +375,6 @@ fun playSound(context: Context, soundId: Int) {
     isPlaying = true
 
     soundCounter++
-    println("Sound Counter: $soundCounter")
 
     if (soundCounter >= 10) {
         if (context is MainActivity) {
